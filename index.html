@@ -1,25 +1,65 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="description" content="This is my portfolio">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="shortcut icon" href="img/icon.jpg" type="image/x-icon" sizes="16x16 32x32 64x64">
-    <link rel="stylesheet" href="css/styles.css">
-    <title>Web_project(untitled)</title>
-</head>
-<body>
-    <header>
-        <h1>Portfolio</h1>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="description" content="This is my portfolio" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="shortcut icon"
+      href="img/icon.jpg"
+      type="image/x-icon"
+      sizes="16x16 32x32 64x64"
+    />
+    <link rel="stylesheet" href="css/styles.css" />
+    <title>자기 소개 페이지</title>
+  </head>
+  <body>
+    <header class="header">
+      <h1 class="title">Hello, World!</h1>
     </header>
-    <main>
-        <p>My name is <strong><abbr title="Shin seong woo">DG</abbr></strong></p>
+    <main role="main" class="main">
+      <div class="wrapper">
+        <h1>신성우</h1>
+        <img src="./img/art.png" alt="프로필 사진" / width="500px"
+        class="profile_image">
+        <h2>자기소개</h2>
+        <ol>
+          <li>
+            <h3>관심 직무 또는 앞으로의 목표</h3>
+            <input type="button" value="▼" / class="open_contents" id="0">
+            <p class="contents">
+              웹 프로그래밍, 프로젝트를 통해서 개발 역량을 키우는 것
+            </p>
+          </li>
+          <li>
+            <h3>관심 분야 또는 기술</h3>
+            <input type="button" value="▼" / class="open_contents" id="1">
+            <p class="contents">웹프론트엔드, react</p>
+          </li>
+          <li>
+            <h3>AI 트랙에서 가장 기대되는 점</h3>
+            <input type="button" value="▼" / class="open_contents" id="2">
+            <p class="contents">여러 기술을 결합해서 진행할 프로젝트</p>
+          </li>
+          <li>
+            <h3>동료 레이서에게 하고 싶은 말</h3>
+            <input type="button" value="▼" / class="open_contents" id="3">
+            <p class="contents">끝까지 포기하지 않고 함께 갑시다!!!</p>
+          </li>
+          <li>
+            <h3>취미</h3>
+            <input type="button" value="▼" / class="open_contents" id="4">
+            <p class="contents">배드민턴 (최근에는 못하고 있는 건 함정🤪)</p>
+          </li>
+        </ol>
+      </div>
     </main>
-    <footer>
-        <address>asdfgg77@naver.com</address>
-        <p>&copy;DGW</p>
+
+    <footer class="footer">
+      <p>&copy;DGW</p>
+      <address>asdfgg77@naver.com | ssw4510@gmail.com</address>
     </footer>
-<script src="js/DGW.js"></script>
-</body>
+    <script src="js/DGW.js"></script>
+  </body>
 </html>
