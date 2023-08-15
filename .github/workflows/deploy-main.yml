@@ -1,1 +1,69 @@
+# workflow 이름
+name: portfolio-CI/CD-workflow
 
+# workflow 실행 시 만들어지는 이름
+run-name: Deploy by @${{ github.actor }}
+
+# workflow를 자동으로 트리거하기 위해 사용 (workflow를 작동시키는 이벤트를 정의할 수 있음)
+on:
+  push:
+    branches:
+      - main
+
+# 전체 작업에 대한 권한 설정 (GITHUB_TOKEN)
+permissions: read-all
+
+defaults:
+  run:
+    shell: bash
+    working-directory: scripts
+
+# 작업
+jobs:
+  deploy_start:
+    name: deploy start
+    # 작업을 실행할 머신 형식
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Build the React app
+        run: yarn run build
+
+      - name: Upload to S3
+        run: |
+          aws s3 cp build/ s3://portfolio-bucket/ --recursive
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      # EC2에 SSH로 접속하여 웹 서버 재시작
+      - name: SSH into EC2
+        run: |
+          # 시스템의 소프트웨어 패키지 정보를 업데이트(패키지 저장소에서 최신 패키지 정보를 가져와 로컬 캐시에 업데이트)
+          sudo apt-get update
+
+          # openssh-client 패키지를 시스템에 설치(SSH 클라이언트 소프트웨어 설치)
+          sudo apt-get install -y openssh-client
+
+          # 사용자의 홈 디렉토리 아래에 .ssh디렉토리 생성
+          mkdir -p ~/.ssh
+
+          # GitHub Secrets에 저장된 SSH 개인 키 값을 가져와서 해당 위치에 저장
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/privatekey.pem
+
+          # 파일 권한을 설정 (소유자만 읽을 수 있는 권한으로 설정)
+          chmod 400 ~/.ssh/privatekey.pem
+
+          # 원격 서버에 SSH 접속, 호스트 키 검사 비활성화, SSH연결 시에 사용할 개인 키 파일 지정, Nginx 웹서버 다시 시작
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/privatekey.pem ec2-user@ec2-18-119-139-74.us-east-2.compute.amazonaws.com "sudo systemctl restart nginx"
