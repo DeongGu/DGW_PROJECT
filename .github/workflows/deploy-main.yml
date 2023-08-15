@@ -13,11 +13,6 @@ on:
 # 전체 작업에 대한 권한 설정 (GITHUB_TOKEN)
 permissions: read-all
 
-defaults:
-  run:
-    shell: bash
-    working-directory: scripts
-
 # 작업
 jobs:
   deploy_start:
