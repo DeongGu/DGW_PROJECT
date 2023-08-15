@@ -35,10 +35,10 @@ jobs:
           node-version: 18
 
       - name: Install dependencies
-        run: yarn install
+        run: npm install
 
       - name: Build the React app
-        run: yarn run build
+        run: npm run build
 
       - name: Upload to S3
         run: |
