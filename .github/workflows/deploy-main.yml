@@ -39,7 +39,7 @@ jobs:
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        run: aws s3 cp build/ s3://dg-portfolio-bucket/ --recursive
+        run: aws s3 cp build/ s3://dg-portfolio-bucket/ --recursive --debug
 
       # EC2에 SSH로 접속하여 웹 서버 재시작
       - name: SSH into EC2
