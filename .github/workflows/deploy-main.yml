@@ -27,7 +27,7 @@ jobs:
       - name: Clean temp directory
         run: |
           rm -rf *
-          cp -r $GITHUB_WORKSPACE .
+          cp -r $GITHUB_WORKSPACE
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
