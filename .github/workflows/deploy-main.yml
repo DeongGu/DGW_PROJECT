@@ -1,17 +1,11 @@
 # workflow 이름
 name: portfolio-CI/CD-workflow
 
-# workflow 실행 시 만들어지는 이름
-run-name: Deploy by @${{ github.actor }}
-
 # workflow를 자동으로 트리거하기 위해 사용 (workflow를 작동시키는 이벤트를 정의할 수 있음)
 on:
   push:
     branches:
       - main
-
-# 전체 작업에 대한 권한 설정 (GITHUB_TOKEN)
-permissions: read-all
 
 # 작업
 jobs:
@@ -35,11 +29,18 @@ jobs:
       - name: Build the React app
         run: npm run build
 
+      - name: Zip build folder
+        run: zip -r build.zip build/
+
+      - name: Set up AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-2
+
       - name: Upload to S3
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        run: aws s3 cp build/ s3://dg-portfolio-bucket/ --recursive --debug
+        run: aws s3 cp build.zip s3://dg-portfolio-bucket/build/build.zip --recursive --debug
 
       # EC2에 SSH로 접속하여 웹 서버 재시작
       - name: SSH into EC2
