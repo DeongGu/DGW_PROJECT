@@ -30,7 +30,7 @@ jobs:
         run: npm run build
 
       - name: Zip build folder
-        run: zip -r build.zip ./build/
+        run: zip -r build.zip ./build/ --debug
 
       - name: Set up AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
