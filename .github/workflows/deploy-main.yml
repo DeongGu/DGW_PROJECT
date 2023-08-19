@@ -30,7 +30,7 @@ jobs:
         run: npm run build
 
       - name: Zip build folder
-        run: zip -r build.zip ./build/ --debug
+        run: zip -r .next.zip ./.next/
 
       - name: Set up AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -40,7 +40,7 @@ jobs:
           aws-region: us-east-2
 
       - name: Upload to S3
-        run: aws s3 cp build.zip s3://dg-portfolio-bucket/build/build.zip --debug
+        run: aws s3 cp next.zip s3://dg-portfolio-bucket/next/next.zip --debug
 
       # EC2에 SSH로 접속하여 웹 서버 재시작
       - name: SSH into EC2
