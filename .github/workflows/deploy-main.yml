@@ -51,7 +51,7 @@ jobs:
           --application-name CodeDeploy
           --deployment-config-name CodeDeployDefault.AllAtOnce
           --deployment-group-name CodeDeploy
-          --s3-location bucket=my-dg-portfolio,key=next/next.zip,bundleType=zip
+          --s3-location bucket=my-dg-portfolio-bucket,key=next/next.zip,bundleType=zip
 
       # EC2에 SSH로 접속하여 웹 서버 재시작
       - name: SSH into EC2
