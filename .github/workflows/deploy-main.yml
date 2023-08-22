@@ -65,4 +65,4 @@ jobs:
           chmod 400 ~/.ssh/privatekey.pem
 
           # 원격 서버에 SSH 접속, 호스트 키 검사 비활성화, SSH연결 시에 사용할 개인 키 파일 지정, Nginx 웹서버 다시 시작
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/privatekey.pem ec2-user@ec2-18-119-139-74.us-east-2.compute.amazonaws.com "sudo systemctl restart nginx"
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/privatekey.pem ec2-user@ec2-13-124-96-1.ap-northeast-2.compute.amazonaws.com "sudo systemctl restart nginx"
