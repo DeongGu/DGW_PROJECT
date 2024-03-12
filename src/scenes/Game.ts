@@ -1,68 +1,39 @@
 import { Engine } from "matter";
 import { Scene } from "phaser";
 
+import { createFriendAnims } from "../anims/FriendAnims";
+import { createCharacterAnims } from "../anims/CharacterAnims";
+import Friend from "./npc/friend";
+
 export class Game extends Scene {
-  private character: Phaser.Physics.Matter.Sprite | null = null;
-  private npc: Phaser.Physics.Matter.Sprite | null = null;
-  private cursors: Phaser.Types.Input.Keyboard.CursorKeys | null = null;
+  private character!: Phaser.Physics.Matter.Sprite;
+  private friend!: Phaser.Physics.Matter.Sprite;
+  private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
   private isTouchingDown = false;
+  triggerDistance = 300;
 
   constructor() {
     super("Game");
   }
 
   init() {
-    this.cursors = this.input.keyboard?.createCursorKeys() || null;
-  }
-
-  private createCharacterAnimations() {
-    this.anims.create({
-      key: "left",
-      frames: this.anims.generateFrameNumbers("dg", {
-        start: 0,
-        end: 3,
-      }),
-      frameRate: 10,
-      repeat: -1,
-    });
-
-    this.anims.create({
-      key: "turn",
-      frames: [{ key: "dg", frame: 4 }],
-      frameRate: 10,
-    });
-
-    this.anims.create({
-      key: "right",
-      frames: this.anims.generateFrameNumbers("dg", {
-        start: 5,
-        end: 8,
-      }),
-      frameRate: 10,
-      repeat: -1,
-    });
-
-    this.anims.create({
-      key: "hello",
-      frames: this.anims.generateFrameNumbers("hello", {
-        start: 0,
-        end: 1,
-      }),
-      frameRate: 5,
-      repeat: -1,
-    });
+    this.cursors = this.input.keyboard.createCursorKeys();
   }
 
   create() {
-    this.createCharacterAnimations();
+    // 애니메이션 추가
+    createCharacterAnims(this.anims);
+    createFriendAnims(this.anims);
 
-    // 세계법칙설정
-    this.matter.world.setBounds(
-      10,
-      -100,
-      +this.game.config.width - 20,
-      +this.game.config.height
-    );
+    // 지면 생성
+    const map = this.make.tilemap({ key: "ground" });
+    const tileset = map.addTilesetImage("ground", "tiles");
+
+    const groundLayer = map.createLayer("Ground", tileset);
+    groundLayer?.setCollisionByProperty({ collides: true });
+    this.matter.world.convertTilemapLayer(groundLayer);
+
+    // 충돌 감지
     this.matter.world.on(
       "collisionstart",
       (event: MatterJS.IEventCollision<Engine>) => {
@@ -70,42 +41,54 @@ export class Game extends Scene {
           const bodyA = pair.bodyA;
           const bodyB = pair.bodyB;
 
-          // 두 개체가 겹칠 때 추가 작업을 수행합니다.
-          if (bodyA === this.character?.body && bodyB === this.npc?.body) {
-            console.log("Collision detected between:", bodyA, "and", bodyB);
+          // 두 개체가 겹칠 때 추가 작업 실행 - friend 위치 고정
+          if (bodyA === this.character?.body && bodyB === this.friend?.body) {
+            this.friend.setStatic(true);
           }
         });
       }
     );
 
     // 캐릭터 설정
-    this.character = this.matter.add.sprite(200, 150, "dg").setFixedRotation();
-    this.character.setScale(4, 4);
+    this.character = this.matter.add.sprite(200, 0, "dg").setFixedRotation();
+    this.character.setScale(3, 3);
     this.character.setBounce(0.2);
-    this.character.setOnCollide((data: MatterJS.ICollisionPair) => {
+    this.character.setOnCollide((/*data: MatterJS.ICollisionPair*/) => {
       this.isTouchingDown = true;
     });
 
-    this.npc = this.matter.add.sprite(800, 580, "npc").setFixedRotation();
-    this.npc.setScale(4, 4);
-    this.npc.setBounce(0.2);
-    this.npc.anims.play("hello");
-    this.npc.setStatic(true);
-
-    // this.cameras.main.startFollow(this.character, true, 1, 1, 200, 200);
+    // npc 생성
+    this.friend = new Friend(this, 800, 0, "friend", 0);
+    this.friend.anims.play("friend-hello");
   }
 
   update(): void {
+    // 캐릭터와 npc 사이 거리가 일정 거리가 됐을 경우, 특정 키를 누르면 상호작용을 할 수 있다는 텍스트를 화면에 보여주기
+    if (this.character && this.friend) {
+      const distance = Phaser.Math.Distance.Between(
+        this.character?.x,
+        this.character?.y,
+        this.friend?.x,
+        this.friend.y
+      );
+
+      if (distance < this.triggerDistance) {
+        // 텍스트 화면에 보여주기
+        console.log("가깝다");
+      }
+    }
+
+    // 캐릭터의 움직임
     if (this.character && this.cursors) {
       if (this.cursors.left.isDown) {
-        this.character.setVelocityX(-10);
         this.character.play("left", true);
+        this.character.setVelocityX(-10);
       } else if (this.cursors.right.isDown) {
-        this.character.setVelocityX(10);
         this.character.play("right", true);
+        this.character.setVelocityX(10);
       } else {
-        this.character.setVelocityX(0);
         this.character.play("turn");
+        this.character.setVelocityX(0);
       }
 
       if (this.cursors.up.isDown && this.isTouchingDown) {
