@@ -1,6 +1,6 @@
 import { Boot } from "./scenes/Boot";
 import { Game as MainGame } from "./scenes/Game";
-import { MainMenu } from "./scenes/MainMenu";
+// import { MainMenu } from "./scenes/MainMenu";
 import { Preloader } from "./scenes/Preloader";
 
 import { Game, Types } from "phaser";
@@ -28,10 +28,10 @@ const config: Types.Core.GameConfig = {
         top: true,
         bottom: true,
       },
-      debug: true,
+      // debug: true,
     },
   },
-  scene: [Boot, Preloader, MainMenu, MainGame],
+  scene: [Boot, Preloader, MainGame],
 };
 
 export default new Game(config);

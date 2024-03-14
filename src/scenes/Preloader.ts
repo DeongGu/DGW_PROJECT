@@ -14,6 +14,10 @@ export class Preloader extends Scene {
     this.load.image("tiles", "tiles/tiles.png");
     this.load.tilemapTiledJSON("ground", "tiles/ground1.json");
 
+    this.load.image("talkbox", "talkbox.png");
+    this.load.image("profile", "me.png");
+    this.load.image("friend-profile", "friendProfile.png");
+
     this.load.spritesheet("dg", "dg.png", {
       frameWidth: 32,
       frameHeight: 48,
@@ -31,6 +35,6 @@ export class Preloader extends Scene {
   }
 
   create() {
-    this.scene.start("MainMenu");
+    this.scene.start("Game");
   }
 }
