@@ -18,6 +18,7 @@ export default class Friend extends Phaser.Physics.Matter.Sprite {
     frame?: string | number
   ) {
     super(scene.matter.world, x, y, texture, frame);
+
     scene.add.existing(this);
     this.setScale(3, 3);
     this.setBounce(0.2);

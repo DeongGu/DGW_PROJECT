@@ -3,17 +3,21 @@ import { Scene } from "phaser";
 
 import { createFriendAnims } from "../anims/FriendAnims";
 import { createCharacterAnims } from "../anims/CharacterAnims";
-import Friend from "./npc/friend";
+
+import Friend from "../sprite/friend";
+
+import TalkBoxContainer from "../container/talkBoxContainer";
+import MsgBoxContainer from "../container/msgBoxContainer";
 
 export class Game extends Scene {
   private character!: Phaser.Physics.Matter.Sprite;
   private friend!: Phaser.Physics.Matter.Sprite;
-  private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
   private isTouchingDown = false;
+  cursors: Phaser.Types.Input.Keyboard.CursorKeys | null = null;
   triggerDistance = 300;
 
-  private msgContainer!: Phaser.GameObjects.Container;
-  private talkContainer!: Phaser.GameObjects.Container;
+  private msgBoxContainer!: Phaser.GameObjects.Container & MsgBoxContainer;
+  private talkBoxContainer!: Phaser.GameObjects.Container & TalkBoxContainer;
 
   constructor() {
     super("Game");
@@ -64,88 +68,35 @@ export class Game extends Scene {
     this.friend = new Friend(this, 750, 0, "friend", 0);
     this.friend.anims.play("friend-hello");
 
-    this.input.keyboard?.on("keyup-F", () => {
-      this.msgContainer.scene.add.tween({
-        targets: this.msgContainer,
-        y: this.scale.height * 0.8,
-        duration: 0,
-        ease: Phaser.Math.Easing.Sine.InOut,
-      });
-    });
+    // 대화 관련 컨테이너 생성
+    this.msgBoxContainer = new MsgBoxContainer(
+      this,
+      0,
+      0,
+      "대화를 하려면 F키를 누르세요"
+    );
+    this.talkBoxContainer = new TalkBoxContainer(
+      this,
+      0,
+      this.scale.height * 0.65,
+      this
+    );
 
-    this.msgContainer = this.add.container(0, 0);
+    this.events.on(
+      "openTalkBox",
+      this.talkBoxContainer.open,
+      this.talkBoxContainer
+    );
 
-    const msgBox = this.add
-      .rectangle(755, 310, 35, 35, 0xe0e0e0, 0.8)
-      .setStrokeStyle(2, 0x000000);
-
-    const text = this.add.text(620, 250, "대화를 하려면 F키를 누르세요", {
-      fontSize: 20,
-      padding: { x: 10, y: 10 },
-      fontFamily: "DNFBitBitv2",
-      color: "white",
-    });
-    const Ftext = this.add.text(750, 300, "F", {
-      fontSize: 17,
-      fontFamily: "DNFBitBitv2",
-      color: "black",
-    });
-
-    this.msgContainer.add(msgBox);
-    this.msgContainer.add(text);
-    this.msgContainer.add(Ftext);
-
-    this.msgContainer.scene.add.tween({
-      targets: this.msgContainer,
-      y: 0,
-      duration: 0,
-      ease: Phaser.Math.Easing.Sine.InOut,
-    });
-
-    this.talkContainer = this.add.container(0, this.scale.height * 0.65);
-
-    const talkBox = this.add
-      .image(0, 0, "talkbox")
-      .setOrigin(0)
-      .setScale(1, 0.9);
-
-    let profileImgKey = "friend-profile";
-
-    const profile = this.add
-      .image(30, 30, profileImgKey)
-      .setOrigin(0)
-      .setScale(0.4);
-
-    const name = "친구";
-    const nameText = this.add.text(170, 40, name, {
-      fontSize: 20,
-      padding: { x: 10, y: 10 },
-      fontFamily: "DNFBitBitv2",
-      color: "rgba(96, 155, 115, 1)",
-      backgroundColor: "rgba(0,0,0,0.2)",
-    });
-
-    let textContent =
-      "안녕?  bro 인생은 한 번 뿐이잖아 하고 싶은 일을 해볼거야!";
-
-    const textBox = this.add
-      .text(180, 90, textContent, {
-        fontSize: 30,
-        padding: { x: 10, y: 10 },
-        fontFamily: "DNFBitBitv2",
-        fontStyle: "italic",
-        color: "black",
-      })
-      .setWordWrapWidth(talkBox.width * 0.7);
-    const mark = this.add
-      .triangle(900, 180, 0, 0, 30, 0, 15, 15, 0x000000)
-      .setOrigin(0);
-
-    this.talkContainer.add(talkBox);
-    this.talkContainer.add(textBox);
-    this.talkContainer.add(mark);
-    this.talkContainer.add(profile);
-    this.talkContainer.add(nameText);
+    this.events.on(
+      "moveNextScene",
+      () => {
+        this.triggerDistance = 0;
+        this.friend.anims.play("friend-right");
+        this.character.anims.play("right");
+      },
+      this
+    );
   }
 
   update(): void {
@@ -160,7 +111,9 @@ export class Game extends Scene {
 
       if (distance < this.triggerDistance) {
         // 텍스트 화면에 보여주기
+        this.msgBoxContainer.open();
       } else {
+        this.msgBoxContainer.close();
       }
     }
 
