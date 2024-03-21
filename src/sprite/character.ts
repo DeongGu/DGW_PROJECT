@@ -5,11 +5,11 @@ import { sceneEvents } from "../events/sceneEventEmit";
 enum Action {
   RIGHT,
   LEFT,
-  PUSH,
   STOP,
 }
 
-export default class Friend extends Phaser.Physics.Matter.Sprite {
+export default class Character extends Phaser.Physics.Matter.Sprite {
+  private isTouchingDown = false;
   private action = Action.STOP;
 
   constructor(
@@ -25,7 +25,10 @@ export default class Friend extends Phaser.Physics.Matter.Sprite {
     this.setScale(3, 3);
     this.setBounce(0.2);
     this.setFixedRotation();
-    this.anims.play("friend-turn");
+
+    this.setOnCollide((/*data: MatterJS.ICollisionPair*/) => {
+      this.isTouchingDown = true;
+    });
 
     sceneEvents.on(
       "moveNextScene",
@@ -34,24 +37,6 @@ export default class Friend extends Phaser.Physics.Matter.Sprite {
       },
       this
     );
-
-    // scene.matter.world.on(
-    //   Phaser.Physics.Matter.Events.COLLISION_START,
-    //   this.handleCollision,
-    //   this
-    // );
-  }
-
-  // private handleCollision(
-  //   target: Phaser.GameObjects.GameObject,
-  //   tile: Phaser.Tilemaps.Tile
-  // ) {
-  //   // if (target !== this) return;
-  //   // console.log(target);
-  // }
-
-  destroy(fromScene?: boolean | undefined): void {
-    super.destroy(fromScene);
   }
 
   protected preUpdate(time: number, delta: number): void {
@@ -62,16 +47,36 @@ export default class Friend extends Phaser.Physics.Matter.Sprite {
     switch (this.action) {
       case Action.LEFT:
         this.setVelocityX(-speed);
-        this.anims.play("friend-left", true);
+        this.anims.play("left", true);
         break;
 
       case Action.RIGHT:
         this.setVelocityX(speed);
-        this.anims.play("friend-right", true);
+        this.anims.play("right", true);
         break;
 
       default:
         break;
+    }
+  }
+
+  update(cursors: Phaser.Types.Input.Keyboard.CursorKeys): void {
+    if (cursors && this) {
+      if (cursors.left.isDown) {
+        this.play("left", true);
+        this.setVelocityX(-10);
+      } else if (cursors.right.isDown) {
+        this.play("right", true);
+        this.setVelocityX(10);
+      } else {
+        this.play("turn");
+        this.setVelocityX(0);
+      }
+
+      if (cursors.up.isDown && this.isTouchingDown) {
+        this.setVelocityY(-20);
+        this.isTouchingDown = false;
+      }
     }
   }
 }

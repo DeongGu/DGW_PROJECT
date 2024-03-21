@@ -1,5 +1,6 @@
 import { Scene } from "phaser";
-import { Game } from "../scenes/Game";
+import { Game } from "../scenes/Prologue";
+import { sceneEvents } from "../events/sceneEventEmit";
 
 export default class TalkBoxContainer extends Phaser.GameObjects.Container {
   private gameInstance: Game;
@@ -93,11 +94,13 @@ export default class TalkBoxContainer extends Phaser.GameObjects.Container {
 
     scene.add.existing(this);
 
+    sceneEvents.on("openTalkBox", this.open, this);
+
     let idx = 0;
 
     scene.input.keyboard?.on("keyup-F", () => {
       if (idx === script.length) {
-        scene.events.emit("moveNextScene");
+        sceneEvents.emit("moveNextScene");
         this.close();
         return;
       }

@@ -1,7 +1,8 @@
 import { Boot } from "./scenes/Boot";
-import { Game as MainGame } from "./scenes/Game";
-// import { MainMenu } from "./scenes/MainMenu";
 import { Preloader } from "./scenes/Preloader";
+import { Prologue } from "./scenes/Prologue";
+import { Plot } from "./scenes/Plot";
+// import { MainMenu } from "./scenes/MainMenu";
 
 import { Game, Types } from "phaser";
 
@@ -31,7 +32,7 @@ const config: Types.Core.GameConfig = {
       // debug: true,
     },
   },
-  scene: [Boot, Preloader, MainGame],
+  scene: [Boot, Preloader, Prologue, Plot],
 };
 
 export default new Game(config);

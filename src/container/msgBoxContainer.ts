@@ -1,4 +1,5 @@
 import { Scene } from "phaser";
+import { sceneEvents } from "../events/sceneEventEmit";
 
 export default class MsgBoxContainer extends Phaser.GameObjects.Container {
   constructor(scene: Scene, x: number, y: number, textContents: string) {
@@ -34,7 +35,7 @@ export default class MsgBoxContainer extends Phaser.GameObjects.Container {
     // 캐릭터 움직임이랑 msgBox 반응 안되게 해야함 (별도로 이벤트를 만들지, open 메서드를 수정할 지 선택)
     scene.input.keyboard?.on("keyup-F", () => {
       if (this.visible) {
-        scene.events.emit("openTalkBox");
+        sceneEvents.emit("openTalkBox");
         text.setText("계속 진행하려면 F키를 눌러주세요");
       }
     });
