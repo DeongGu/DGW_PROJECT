@@ -17,7 +17,8 @@ export default class Character extends Phaser.Physics.Matter.Sprite {
     x: number,
     y: number,
     texture: string,
-    frame?: string | number
+    frame?: string | number,
+    cursors: Phaser.Types.Input.Keyboard.CursorKeys | null = null
   ) {
     super(scene.matter.world, x, y, texture, frame);
 
@@ -34,6 +35,25 @@ export default class Character extends Phaser.Physics.Matter.Sprite {
       "moveNextScene",
       () => {
         this.action = Action.RIGHT;
+      },
+      this
+    );
+
+    sceneEvents.on(
+      "plotStart",
+      () => {
+        scene.cursors = null;
+        this.anims.play("right", true),
+          scene.tweens.add({
+            targets: this,
+            x: 300,
+            ease: "linear",
+            duration: 4000,
+            onComplete: () => {
+              this.anims.play("turn", true);
+              scene.cursors = cursors;
+            },
+          });
       },
       this
     );

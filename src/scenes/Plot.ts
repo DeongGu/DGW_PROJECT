@@ -1,4 +1,3 @@
-import { Engine } from "matter";
 import { Scene } from "phaser";
 
 import Friend from "../sprite/friend";
@@ -8,10 +7,12 @@ import TalkBoxContainer from "../container/talkBoxContainer";
 import MsgBoxContainer from "../container/msgBoxContainer";
 
 import { sceneEvents } from "../events/sceneEventEmit";
+import { createCharacterAnims } from "../anims/CharacterAnims";
+import { createFriendAnims } from "../anims/FriendAnims";
 
 export class Plot extends Scene {
   private character!: Phaser.Physics.Matter.Sprite;
-  private friend!: Phaser.Physics.Matter.Sprite;
+  private friend!: Phaser.Physics.Matter.Sprite | Phaser.GameObjects.Image;
 
   cursors: Phaser.Types.Input.Keyboard.CursorKeys | null = null;
 
@@ -27,50 +28,38 @@ export class Plot extends Scene {
   }
 
   create() {
-    // 지면 생성
-    const map = this.make.tilemap({ key: "ground" });
-    const tileset = map.addTilesetImage("ground", "tiles");
+    // 제거 예장
+    createCharacterAnims(this.anims);
+    createFriendAnims(this.anims);
 
-    const groundLayer = map.createLayer("Ground", tileset);
+    // 지면 생성
+    const map = this.make.tilemap({ key: "ground1" });
+    const tileset = map.addTilesetImage("tilemap1", "tiles1");
+    const groundLayer = map.createLayer("ground", tileset);
     groundLayer?.setCollisionByProperty({ collides: true });
     this.matter.world.convertTilemapLayer(groundLayer);
 
-    // 충돌 감지
-    this.matter.world.on(
-      "collisionstart",
-      (event: MatterJS.IEventCollision<Engine>) => {
-        event.pairs.forEach((pair: MatterJS.IPair) => {
-          const bodyA = pair.bodyA;
-          const bodyB = pair.bodyB;
-
-          // 두 개체가 겹칠 때 추가 작업 실행 - friend 위치 고정
-          if (bodyA === this.character?.body && bodyB === this.friend?.body) {
-            this.friend.setStatic(true);
-          }
-        });
-      }
-    );
+    // 세계 경계 설정
+    this.matter.world.setBounds(0, 0, groundLayer?.width, groundLayer?.height);
 
     // 캐릭터 설정
-    this.character = new Character(this, 200, 0, "dg", 0);
+    this.character = new Character(this, 10, 0, "dg", 0, this.cursors);
 
     // npc 생성
-    this.friend = new Friend(this, 750, 0, "friend", 0);
-    this.friend.anims.play("friend-hello");
+    this.friend = new Friend(this, 150, 410, "friend", 0);
 
-    // 대화 관련 컨테이너 생성
-    this.msgBoxContainer = new MsgBoxContainer(
-      this,
+    this.cameras.main.startFollow(this.character, false, 1, 1, 0, 100);
+    this.cameras.main.setBounds(
+      200,
       0,
-      0,
-      "대화를 하려면 F키를 누르세요"
+      groundLayer?.width - 200,
+      groundLayer?.height,
+      true
     );
-    this.talkBoxContainer = new TalkBoxContainer(
-      this,
-      0,
-      this.scale.height * 0.65,
-      this
-    );
+
+    sceneEvents.emit("plotStart");
+    // sceneEvents.emit("moveNextScene");
+    this.matter.world.setGravity(0.5);
   }
 
   update(t: number, dt: number): void {

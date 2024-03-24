@@ -12,7 +12,9 @@ export class Preloader extends Scene {
     this.load.setPath("assets");
 
     this.load.image("tiles", "tiles/tiles.png");
-    this.load.tilemapTiledJSON("ground", "tiles/ground1.json");
+    this.load.tilemapTiledJSON("ground", "tiles/ground.json");
+    this.load.image("tiles1", "tiles/tilemap1.png");
+    this.load.tilemapTiledJSON("ground1", "tiles/ground1.json");
 
     this.load.image("talkbox", "talkbox.png");
     this.load.image("profile", "me.png");
@@ -35,6 +37,7 @@ export class Preloader extends Scene {
   }
 
   create() {
-    this.scene.start("Prologue");
+    // this.scene.start("Prologue");
+    this.scene.start("Plot");
   }
 }

@@ -35,20 +35,25 @@ export default class Friend extends Phaser.Physics.Matter.Sprite {
       this
     );
 
-    // scene.matter.world.on(
-    //   Phaser.Physics.Matter.Events.COLLISION_START,
-    //   this.handleCollision,
-    //   this
-    // );
+    sceneEvents.on(
+      "plotStart",
+      () => {
+        this.anims.play("friend-right", true);
+        scene.tweens.add({
+          targets: this,
+          x: 500,
+          ease: "linear",
+          duration: 4000,
+          onComplete: () => {
+            this.anims.play("friend-turn", true);
+            this.destroy(true);
+            scene.add.image(500, 392, "friend", 4).setScale(3, 3);
+          },
+        });
+      },
+      this
+    );
   }
-
-  // private handleCollision(
-  //   target: Phaser.GameObjects.GameObject,
-  //   tile: Phaser.Tilemaps.Tile
-  // ) {
-  //   // if (target !== this) return;
-  //   // console.log(target);
-  // }
 
   destroy(fromScene?: boolean | undefined): void {
     super.destroy(fromScene);
