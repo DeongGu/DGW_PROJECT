@@ -84,15 +84,24 @@ export class Prologue extends Scene {
     sceneEvents.on(
       "moveNextScene",
       () => {
-        this.triggerDistance = 0;
+        this.tweens.add({
+          targets: this,
+          ease: "linear",
+          duration: 1000,
+          callbacks: () => {
+            // update 메서드 때문에 거리를 0으로 바꿔서 msgContainer 안 보이게 하기
+            this.triggerDistance = 0;
 
-        // sprite 객체들이 화면 밖으로 이동하게 하기위해 세계 경계 너비를 넓힘
-        this.matter.world.setBounds(0, 0, 1200, 0);
+            // sprite 객체들이 화면 밖으로 이동하게 하기위해 세계 경계 너비를 넓힘
+            this.matter.world.setBounds(0, 0, 1200, 0);
 
-        // 화면을 fadeout 시킨 이후, 다음 scene으로 이동(시작)
-        this.cameras.main.fadeOut(1000, 0, 0, 0);
-        this.cameras.main.once("camerafadeoutcomplete", () => {
-          this.scene.start("Plot");
+            // 화면을 fadeout 시킴
+            this.cameras.main.fadeOut(1000, 0, 0, 0);
+          },
+          onComplete: () => {
+            // 다음 scene으로 이동(시작)
+            this.scene.start("Plot");
+          },
         });
       },
       this

@@ -1,9 +1,10 @@
 import { Scene } from "phaser";
-import { Game } from "../scenes/Prologue";
+import { Prologue } from "../scenes/Prologue";
+import { Plot } from "scenes/Plot";
 import { sceneEvents } from "../events/sceneEventEmit";
 
 export default class TalkBoxContainer extends Phaser.GameObjects.Container {
-  private gameInstance: Game;
+  private gameInstance: Prologue | Plot;
   private timerEvent?: Phaser.Time.TimerEvent;
 
   private text: Phaser.GameObjects.Text;
@@ -14,7 +15,12 @@ export default class TalkBoxContainer extends Phaser.GameObjects.Container {
 
   private isTyping: boolean = false;
 
-  constructor(scene: Scene, x: number, y: number, gameInstance: Game) {
+  constructor(
+    scene: Scene,
+    x: number,
+    y: number,
+    gameInstance: Prologue | Plot
+  ) {
     super(scene, x, y);
     this.gameInstance = gameInstance;
 
@@ -96,25 +102,82 @@ export default class TalkBoxContainer extends Phaser.GameObjects.Container {
 
     sceneEvents.on("openTalkBox", this.open, this);
 
+    const script1 = [
+      {
+        speaker: "친구",
+        contents: "저기 절벽 끝으로 가봐.",
+        image: "friend-profile",
+      },
+      {
+        speaker: "나",
+        contents: "???",
+        image: "profile",
+      },
+    ];
+
+    sceneEvents.on(
+      "lastTalk",
+      () => {
+        scene.tweens.add({
+          targets: this,
+          duration: 2000,
+          callbacks: () => {
+            this.open();
+            this.showNextScript(script1);
+          },
+          onComplete: () => {
+            sceneEvents.emit("beforeFall");
+          },
+        });
+      },
+      this
+    );
+
     let idx = 0;
 
-    scene.input.keyboard?.on("keyup-F", () => {
-      if (idx === script.length) {
-        sceneEvents.emit("moveNextScene");
-        this.close();
-        return;
-      }
-      if (this.isTyping) {
-        return;
-      }
-      this.profile.setTexture(script[idx].image);
-      this.nameText.setText(script[idx].speaker);
-      this.typewriteText(script[idx].contents);
-      idx++;
-    });
+    scene.input.keyboard?.on(
+      "keyup-F",
+      () => {
+        if (idx === script.length) {
+          sceneEvents.emit("moveNextScene");
+          this.close();
+          return;
+        }
+        if (this.isTyping) {
+          return;
+        }
+        this.profile.setTexture(script[idx].image);
+        this.nameText.setText(script[idx].speaker);
+        this.typewriteText(script[idx].contents);
+        idx++;
+      },
+      this
+    );
   }
 
-  private typewriteText(text: string) {
+  private showNextScript(script: any[]) {
+    let idx = 0;
+
+    const showNext = () => {
+      if (idx >= script.length) {
+        return;
+      }
+      this.nameText.setText(script[idx].speaker);
+      this.profile.setTexture(script[idx].image);
+      this.typewriteText(script[idx].contents, () => {
+        idx++;
+        if (idx < script.length) {
+          showNext();
+        } else {
+          setTimeout(() => this.close(), 1000);
+        }
+      });
+    };
+
+    showNext();
+  }
+
+  private typewriteText(text: string, onComplete?: () => void) {
     this.text.text = "";
 
     if (this.timerEvent) {
@@ -130,7 +193,10 @@ export default class TalkBoxContainer extends Phaser.GameObjects.Container {
         this.text.text += text[i];
         ++i;
 
-        if (i === length) this.isTyping = false;
+        if (i === length) {
+          this.isTyping = false;
+          if (onComplete) onComplete();
+        }
       },
       repeat: length - 1,
       delay: 100,

@@ -34,6 +34,16 @@ const createFriendAnims = (anims: Phaser.Animations.AnimationManager) => {
     frameRate: 5,
     repeat: -1,
   });
+
+  anims.create({
+    key: "friend-push",
+    frames: anims.generateFrameNumbers("push", {
+      start: 0,
+      end: 6,
+    }),
+    frameRate: 5,
+    repeat: 0,
+  });
 };
 
 export { createFriendAnims };

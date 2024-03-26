@@ -4,19 +4,13 @@ import Friend from "../sprite/friend";
 import Character from "../sprite/character";
 
 import TalkBoxContainer from "../container/talkBoxContainer";
-import MsgBoxContainer from "../container/msgBoxContainer";
 
 import { sceneEvents } from "../events/sceneEventEmit";
-import { createCharacterAnims } from "../anims/CharacterAnims";
-import { createFriendAnims } from "../anims/FriendAnims";
 
 export class Plot extends Scene {
   private character!: Phaser.Physics.Matter.Sprite;
   private friend!: Phaser.Physics.Matter.Sprite | Phaser.GameObjects.Image;
-
-  cursors: Phaser.Types.Input.Keyboard.CursorKeys | null = null;
-
-  private msgBoxContainer!: Phaser.GameObjects.Container & MsgBoxContainer;
+  private cursors: Phaser.Types.Input.Keyboard.CursorKeys | null = null;
   private talkBoxContainer!: Phaser.GameObjects.Container & TalkBoxContainer;
 
   constructor() {
@@ -28,10 +22,6 @@ export class Plot extends Scene {
   }
 
   create() {
-    // 제거 예장
-    createCharacterAnims(this.anims);
-    createFriendAnims(this.anims);
-
     // 지면 생성
     const map = this.make.tilemap({ key: "ground1" });
     const tileset = map.addTilesetImage("tilemap1", "tiles1");
@@ -48,6 +38,7 @@ export class Plot extends Scene {
     // npc 생성
     this.friend = new Friend(this, 150, 410, "friend", 0);
 
+    // 카메라 생성 및 설정
     this.cameras.main.startFollow(this.character, false, 1, 1, 0, 100);
     this.cameras.main.setBounds(
       200,
@@ -57,9 +48,22 @@ export class Plot extends Scene {
       true
     );
 
+    // 대화 컨테이너 생성
+    this.talkBoxContainer = new TalkBoxContainer(
+      this,
+      200,
+      this.scale.height * 0.65,
+      this
+    );
+
+    // Plot scene 시작 이벤트 트리거
     sceneEvents.emit("plotStart");
-    // sceneEvents.emit("moveNextScene");
-    this.matter.world.setGravity(0.5);
+
+    // 이벤트 실행
+    sceneEvents.on("updateCharacter", () => {
+      this.matter.world.setGravity(0, 3);
+      this.cursors = this.input.keyboard?.createCursorKeys();
+    });
   }
 
   update(t: number, dt: number): void {

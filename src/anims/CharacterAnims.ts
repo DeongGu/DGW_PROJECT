@@ -24,6 +24,36 @@ const createCharacterAnims = (anims: Phaser.Animations.AnimationManager) => {
     frameRate: 10,
     repeat: -1,
   });
+
+  anims.create({
+    key: "fall",
+    frames: anims.generateFrameNames("fall", {
+      start: 0,
+      end: 11,
+    }),
+    frameRate: 12,
+    repeat: -1,
+  });
+
+  anims.create({
+    key: "rolling",
+    frames: anims.generateFrameNames("rolling", {
+      start: 0,
+      end: 3,
+    }),
+    frameRate: 10,
+    repeat: -1,
+  });
+
+  anims.create({
+    key: "landing",
+    frames: anims.generateFrameNames("landing", {
+      start: 0,
+      end: 1,
+    }),
+    frameRate: 1,
+    repeat: 0,
+  });
 };
 
 export { createCharacterAnims };

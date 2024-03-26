@@ -34,10 +34,29 @@ export class Preloader extends Scene {
       frameWidth: 32,
       frameHeight: 48,
     });
+
+    this.load.spritesheet("push", "push.png", {
+      frameWidth: 32,
+      frameHeight: 48,
+    });
+
+    this.load.spritesheet("fall", "fall.png", {
+      frameWidth: 48,
+      frameHeight: 32,
+    });
+
+    this.load.spritesheet("rolling", "rolling.png", {
+      frameWidth: 48,
+      frameHeight: 48,
+    });
+
+    this.load.spritesheet("landing", "landing.png", {
+      frameWidth: 32,
+      frameHeight: 48,
+    });
   }
 
   create() {
-    // this.scene.start("Prologue");
-    this.scene.start("Plot");
+    this.scene.start("Prologue");
   }
 }
